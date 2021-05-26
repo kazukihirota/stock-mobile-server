@@ -1,0 +1,139 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "World City API",
+    "description": "This is a simple Express API based on the World Cities Database",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": { "email": "n10721045@qut.edu.au" },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.5"
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "information",
+      "description": "General API description"
+    },
+    {
+      "name": "query",
+      "description": "API queries based on city and optional country code."
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["information"],
+        "summary": "Simple information page",
+        "description": "Very basic API home page promising more information",
+        "operationId": "apiHome",
+        "produces": ["text/html"],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/city": {
+      "get": {
+        "tags": ["query"],
+        "summary": "List cities and provinces",
+        "description": "Full listing of cities and their provinces for the database",
+        "operationId": "listCitiesAndDistricts",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Error": {
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "Message": {
+                  "type": "string",
+                  "enum": ["Success", "Failure"]
+                },
+                "City": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "district": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/city/{countryCode}": {
+      "get": {
+        "tags": ["query"],
+        "summary": "List cities and provinces",
+        "parameters": [
+          {
+            "name": "countryCode",
+            "in": "path",
+            "description": "Code of the country to return",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+
+        "description": "List of the cities in a country specified by countrycode",
+        "operationId": "listCitiesAndDistricts",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Error": {
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "Message": {
+                  "type": "string",
+                  "enum": ["Success", "Failure"]
+                },
+                "City": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "district": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
