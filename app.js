@@ -6,6 +6,7 @@ var logger = require("morgan");
 require("dotenv").config();
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var watchListRouter = require("./routes/watchlist");
 
 //knex requires
 const options = require("./knexfile");
@@ -59,6 +60,7 @@ app.use((req, res, next) => {
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/watchlist", watchListRouter);
 
 app.get("/knex", function (req, res, next) {
   req.db
