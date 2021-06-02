@@ -66,30 +66,60 @@ router.post("/login", async function (req, res, next) {
     return users[0].id;
   });
 
-  queryUsers
-    .then((users) => {
+  if (userId === undefined) {
+    return res.json({
+      error: true,
+      message: "User name incorrect",
+    });
+  } else {
+    const hashedPassword = await queryUsers.then((users) => {
       if (users.length === 0) {
-        // res.status(400).json({
-        //   error: true,
-        //   message: "User not found",
-        // });
         console.log("User not found");
         return;
       }
       const user = users[0];
-      return bcrypt.compare(password, user.hash);
-    })
-    .then((result) => {
-      if (!result) {
-        console.log("password incorrect");
-        return;
-      }
+      return bcrypt.compare(password, user.hash); //return promise object
+    });
+
+    if (!hashedPassword) {
+      return res.json({
+        error: true,
+        message: "Password incorrect",
+      });
+    } else {
       //create and return JWT token
       const secretKey = "secretKey";
       const expires_in = 60 * 60 * 24 * 7; //7 days
       const exp = Date.now() + expires_in * 1000;
       const token = jwt.sign({ email, exp }, secretKey);
       res.json({ token_type: "Bearer", token, expires_in, userId });
-    });
+    }
+  }
+
+  // queryUsers
+  //   .then((users) => {
+  //     if (users.length === 0) {
+  //       console.log("User not found");
+  //       return;
+  //       // return res.json({
+  //       //   error: true,
+  //       //   message: "User name incorrect",
+  //       // });
+  //     }
+  //     const user = users[0];
+  //     return bcrypt.compare(password, user.hash);
+  //   })
+  //   .then((result) => {
+  //     if (!result) {
+  //       console.log("password incorrect");
+  //       return;
+  //     }
+  //     //create and return JWT token
+  //     const secretKey = "secretKey";
+  //     const expires_in = 60 * 60 * 24 * 7; //7 days
+  //     const exp = Date.now() + expires_in * 1000;
+  //     const token = jwt.sign({ email, exp }, secretKey);
+  //     res.json({ token_type: "Bearer", token, expires_in, userId });
+  //   });
 });
 module.exports = router;

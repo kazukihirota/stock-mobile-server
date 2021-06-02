@@ -55,17 +55,12 @@ router.post("/update", authorize, async function (req, res, next) {
     return outputArray;
   });
 
-  const search = (symbol, userList) => {
-    for (let i = 0; i < userList.length; i++) {
-      if (userList[i].symbol === symbol) {
-        return true;
-      }
-    }
-  };
+  const symbolExist =
+    userList !== undefined
+      ? userList.filter((obj) => obj.symbol === symbol)
+      : [];
 
-  const symbolExist = search(symbol, userList);
-
-  if (symbolExist) {
+  if (symbolExist.length !== 0) {
     console.log("data already exists");
   } else {
     req
@@ -75,4 +70,44 @@ router.post("/update", authorize, async function (req, res, next) {
     console.log("data inserted ");
   }
 });
+
+router.post("/delete", authorize, async function (req, res, next) {
+  const userId = req.body.userId;
+  const symbol = req.body.symbol;
+  if (!userId || !symbol) {
+    res.status(400).json({
+      error: true,
+      message: "Request body imcomplete - userId and symbol needed",
+    });
+    return;
+  }
+
+  //does not add to the databse if the data already exists
+  const queryWatchlist = req.db
+    .from("watchlist")
+    .select("*")
+    .where("userId", "=", userId);
+
+  const userList = await queryWatchlist.then((list) => {
+    if (list.length === 0) return;
+    const outputArray = Object.values(JSON.parse(JSON.stringify(list)));
+    return outputArray;
+  });
+
+  const symbolExist =
+    userList !== undefined
+      ? userList.filter((obj) => obj.symbol === symbol)
+      : [];
+  if (symbolExist.length === 0) {
+    console.log("No data to delete");
+  } else {
+    req
+      .db("watchlist")
+      .where({ userId: userId, symbol: symbol })
+      .del()
+      .then((result) => res.json({ success: true, message: "ok" }));
+    console.log("data deleted ");
+  }
+});
+
 module.exports = router;
