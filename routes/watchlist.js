@@ -110,4 +110,22 @@ router.post("/delete", authorize, async function (req, res, next) {
   }
 });
 
+router.get("/sync/:userId", function(req,res,next){
+  console.log(req.params.userId);
+  req.db
+  .from("watchlist")
+  .select("*")
+  .where("userId","=",req.params.userId)
+  .then((symbols)=>{
+    const tempArray = Object.values(JSON.parse(JSON.stringify(symbols)));
+    const outputArray = tempArray.map((obj)=>obj.symbol);
+    console.log(outputArray);
+    res.json({Error:false, Message:"Success", Symbols:outputArray})
+  })
+  .catch((err) => {
+    console.log(err);
+    res.json({ Error: true, Message: "Error in MySQL query" });
+  });
+})
+
 module.exports = router;

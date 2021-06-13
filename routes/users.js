@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 router.get("/", function (req, res, next) {
   res.send("Users page");
 });
-router.post("/register", function (req, res, next) {
+router.post("/register", async function (req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -24,22 +24,26 @@ router.post("/register", function (req, res, next) {
     .select("*")
     .where("email", "=", email);
 
-  console.log(queryUsers);
+  const userExist = await queryUsers.then((users) => {
+    if (users.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 
-  queryUsers
-    .then((users) => {
-      if (users.length > 0) {
-        console.log("User already exists");
-        return;
-      }
-
-      const saltRounds = 10;
-      const hash = bcrypt.hashSync(password, saltRounds);
-      return req.db.from("users").insert({ email, hash });
-    })
-    .then(() => {
-      res.status(201).json({ success: true, message: "User created" });
-    });
+  if (!userExist) {
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(password, saltRounds);
+    req.db
+      .from("users")
+      .insert({ email, hash })
+      .then(() => {
+        res.status(201).json({ success: true, message: "User created" });
+      });
+  } else {
+    res.status(201).json({ success: false, message: "User already exist" });
+  }
 });
 
 router.post("/login", async function (req, res, next) {
@@ -95,31 +99,5 @@ router.post("/login", async function (req, res, next) {
       res.json({ token_type: "Bearer", token, expires_in, userId });
     }
   }
-
-  // queryUsers
-  //   .then((users) => {
-  //     if (users.length === 0) {
-  //       console.log("User not found");
-  //       return;
-  //       // return res.json({
-  //       //   error: true,
-  //       //   message: "User name incorrect",
-  //       // });
-  //     }
-  //     const user = users[0];
-  //     return bcrypt.compare(password, user.hash);
-  //   })
-  //   .then((result) => {
-  //     if (!result) {
-  //       console.log("password incorrect");
-  //       return;
-  //     }
-  //     //create and return JWT token
-  //     const secretKey = "secretKey";
-  //     const expires_in = 60 * 60 * 24 * 7; //7 days
-  //     const exp = Date.now() + expires_in * 1000;
-  //     const token = jwt.sign({ email, exp }, secretKey);
-  //     res.json({ token_type: "Bearer", token, expires_in, userId });
-  //   });
 });
 module.exports = router;

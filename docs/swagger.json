@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.2",
   "info": {
-    "title": "World City API",
-    "description": "This is a simple Express API based on the World Cities Database",
+    "title": "Stock Mobile App Server",
+    "description": "The API for stock mobile application",
     "termsOfService": "http://swagger.io/terms/",
     "contact": { "email": "n10721045@qut.edu.au" },
     "license": {
@@ -15,7 +15,7 @@
     "description": "Find out more about Swagger",
     "url": "http://swagger.io"
   },
-  "servers": [{ "url": "http://localhost:3000" }],
+  "servers": [{ "url": "http://172.22.25.193/:3001" }],
   "basePath": "/api",
   "tags": [
     {
@@ -23,8 +23,11 @@
       "description": "General API description"
     },
     {
-      "name": "query",
-      "description": "API queries based on city and optional country code."
+      "name": "WatchList",
+      "description": "WatchList for the users"
+    }, {
+      "name": "Authentication",
+      "description": "User authentication"
     }
   ],
   "paths": {
@@ -42,12 +45,40 @@
         }
       }
     },
-    "/api/city": {
-      "get": {
-        "tags": ["query"],
-        "summary": "List cities and provinces",
-        "description": "Full listing of cities and their provinces for the database",
-        "operationId": "listCitiesAndDistricts",
+    "/users/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User registration",
+        "description": "register users to the database",
+        "operationId": "userReg",
+        "produces": ["application/json"],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Error": {
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "Message": {
+                  "type": "string",
+                  "enum": ["Success", "Failure"]
+                }
+                
+                }
+              }
+            }
+          }
+        }
+      },
+    "/users/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User login",
+        "description": "login users to the application",
+        "operationId": "userLogin",
         "produces": ["application/json"],
         "responses": {
           "200": {
@@ -62,44 +93,20 @@
                 "Message": {
                   "type": "string",
                   "enum": ["Success", "Failure"]
-                },
-                "City": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "district": {
-                        "type": "string"
-                      }
-                    }
-                  }
+                }
+                
                 }
               }
             }
           }
         }
-      }
-    },
-
-    "/api/city/{countryCode}": {
-      "get": {
-        "tags": ["query"],
-        "summary": "List cities and provinces",
-        "parameters": [
-          {
-            "name": "countryCode",
-            "in": "path",
-            "description": "Code of the country to return",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-
-        "description": "List of the cities in a country specified by countrycode",
-        "operationId": "listCitiesAndDistricts",
+      },
+    "/watchlist/update": {
+      "post": {
+        "tags": ["WatchList"],
+        "summary": "Update watchlist",
+        "description": "Store the watchlist data to the server",
+        "operationId": "watchlistUpdate",
         "produces": ["application/json"],
         "responses": {
           "200": {
@@ -114,26 +121,69 @@
                 "Message": {
                   "type": "string",
                   "enum": ["Success", "Failure"]
-                },
-                "City": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "district": {
-                        "type": "string"
-                      }
+                }
+                
+                }
+              }
+            }
+          }
+        }
+      },
+      "/watchlist/delete": {
+        "post": {
+          "tags": ["WatchList"],
+          "summary": "Delete item from watchlist",
+          "description": "Delete the item from the server when a user deletes on the app",
+          "operationId": "watchlistDelete",
+          "produces": ["application/json"],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Error": {
+                    "type": "string",
+                    "enum": ["true", "false"]
+                  },
+                  "Message": {
+                    "type": "string",
+                    "enum": ["Success", "Failure"]
+                  }
+                  
+                  }
+                }
+              }
+            }
+          }
+        },"/watchlist/sync/{userId}": {
+          "get": {
+            "tags": ["WatchList"],
+            "summary": "Sync the watchlist with server",
+            "description": "Sync the watchlist with server",
+            "operationId": "watchlistSync",
+            "produces": ["application/json"],
+            "responses": {
+              "200": {
+                "description": "successful operation",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Error": {
+                      "type": "string",
+                      "enum": ["true", "false"]
+                    },
+                    "Message": {
+                      "type": "string",
+                      "enum": ["Success", "Failure"]
+                    }
+                    
                     }
                   }
                 }
               }
             }
           }
-        }
-      }
-    }
+
   }
 }
